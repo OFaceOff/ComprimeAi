@@ -34,12 +34,14 @@
 
     <header class="bg-white shadow-sm sticky top-0 z-10">
         <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-            <div class="flex items-center gap-2 text-blue-600">
+            <a href="" class="flex items-center gap-2 text-blue-600 hover:opacity-80 transition-opacity"
+                title="Atualizar página">
                 <i data-lucide="minimize-2" class="w-8 h-8"></i>
                 <h1 class="text-2xl font-bold tracking-tight">Comprime<span class="text-gray-800">Ai</span></h1>
-            </div>
-            <a href="#" class="text-sm font-medium text-gray-500 hover:text-blue-600 transition-colors">Sobre o
-                Projeto</a>
+            </a>
+            <button onclick="openAboutModal()"
+                class="text-sm font-medium text-gray-500 hover:text-blue-600 transition-colors cursor-pointer">Sobre o
+                Projeto</button>
         </div>
     </header>
 
@@ -214,8 +216,42 @@
 
     <footer class="mt-20 py-8 border-t border-gray-200 text-center text-sm text-gray-500">
         <p>Criado com JavaScript e Tailwind CSS. Todo o processamento de imagens ocorre localmente.</p>
+        <p class="mt-2 font-semibold text-gray-600">&copy; 2026 FStudio</p>
     </footer>
 
+    <!-- Modal Sobre o Projeto -->
+    <div id="about-modal"
+        class="fixed inset-0 bg-gray-900/40 z-50 hidden flex items-center justify-center backdrop-blur-sm opacity-0 transition-opacity duration-300">
+        <div id="about-modal-content"
+            class="bg-white w-full max-w-md p-6 rounded-2xl shadow-xl transform scale-95 transition-transform duration-300 mx-4">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-gray-900">Sobre o ComprimeAi</h3>
+                <button onclick="closeAboutModal()" class="text-gray-400 hover:text-gray-600 transition-colors p-1">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div class="space-y-4 text-sm text-gray-600 leading-relaxed">
+                <p>O <strong>ComprimeAi</strong> é uma ferramenta inteligente criada para reduzir o tamanho dos seus
+                    arquivos de forma rápida e precisa.</p>
+                <p>O grande diferencial deste projeto é a <strong>privacidade e segurança</strong>. Ao contrário de
+                    outras plataformas online, todo o processo de compressão da imagem acontece <span
+                        class="font-semibold text-blue-600">diretamente no seu navegador</span>. Suas fotos nunca são
+                    enviadas para servidores externos ou armazenadas na nuvem.</p>
+                <div class="bg-gray-50 p-3 rounded-lg border border-gray-100 mt-2">
+                    <p class="text-xs text-gray-500 font-medium mb-1">Tecnologias envolvidas:</p>
+                    <p class="text-xs text-gray-500">HTML5 Canvas, JavaScript puro e Tailwind CSS.</p>
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end">
+                <button onclick="closeAboutModal()"
+                    class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-5 rounded-xl transition-colors shadow-sm shadow-blue-200">
+                    Entendi
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast de Notificação -->
     <div id="toast-notification"
         class="fixed bottom-5 right-5 bg-red-600 text-white px-6 py-3 rounded-xl shadow-lg transform transition-all duration-300 translate-y-20 opacity-0 pointer-events-none z-50 flex items-center gap-3">
         <i data-lucide="alert-circle" class="w-5 h-5"></i>
@@ -528,6 +564,26 @@
             toastTimeout = setTimeout(() => {
                 toast.classList.add('translate-y-20', 'opacity-0');
             }, 4000);
+        }
+
+        function openAboutModal() {
+            const modal = document.getElementById('about-modal');
+            const content = document.getElementById('about-modal-content');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                content.classList.remove('scale-95');
+            }, 10);
+        }
+
+        function closeAboutModal() {
+            const modal = document.getElementById('about-modal');
+            const content = document.getElementById('about-modal-content');
+            modal.classList.add('opacity-0');
+            content.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
         }
     </script>
 </body>
