@@ -4,10 +4,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ComprimeAi - Redutor de Arquivos</title>
+    <title>ComprimeAi - Compressor e Redutor de Arquivos Online</title>
+    <meta name="description"
+        content="Reduza o tamanho dos seus arquivos (JPG, PNG, WEBP) online, grátis e com total privacidade. O processo ocorre 100% no seu navegador.">
+    <meta name="keywords"
+        content="comprimir arquivos, reduzir imagem, diminuir tamanho do arquivo, compressor de imagem, redutor de arquivos, otimizar jpg, png, webp, FStudio">
+    <meta name="author" content="FStudio">
+    <meta name="robots" content="index, follow">
+    <meta name="language" content="Portuguese">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="ComprimeAi - Compressor de Arquivos Online">
+    <meta property="og:description"
+        content="Reduza o tamanho dos seus arquivos sem perder qualidade e com total privacidade. O processamento é feito no seu próprio navegador.">
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:title" content="ComprimeAi - Compressor de Arquivos Online">
+    <meta property="twitter:description"
+        content="Reduza o tamanho dos seus arquivos sem perder qualidade e com total privacidade. O processamento é feito no seu próprio navegador.">
     <link rel="icon" type="image/svg+xml"
         href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232563eb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='4 14 10 14 10 20'></polyline><polyline points='20 10 14 10 14 4'></polyline><line x1='14' y1='10' x2='21' y2='3'></line><line x1='3' y1='21' x2='10' y2='14'></line></svg>">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+        }
+    </script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         .hide-scrollbar::-webkit-scrollbar {
@@ -21,84 +41,108 @@
 
         .drag-active {
             border-color: #3b82f6 !important;
-            background-color: #eff6ff !important;
+            background-color: rgba(59, 130, 246, 0.1) !important;
         }
 
         .tab-transition {
             transition: all 0.2s ease-in-out;
         }
+
+        .checker-bg {
+            background-image: radial-gradient(#e5e7eb 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        .dark .checker-bg {
+            background-image: radial-gradient(#374151 1px, transparent 1px);
+        }
     </style>
 </head>
 
-<body class="bg-gray-50 min-h-screen font-sans text-gray-800">
+<body
+    class="bg-gray-50 dark:bg-gray-900 min-h-screen font-sans text-gray-800 dark:text-gray-200 transition-colors duration-200">
 
-    <header class="bg-white shadow-sm sticky top-0 z-10">
+    <header
+        class="bg-white dark:bg-gray-800 shadow-sm dark:shadow-gray-900/50 sticky top-0 z-10 transition-colors duration-200">
         <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-            <a href="" class="flex items-center gap-2 text-blue-600 hover:opacity-80 transition-opacity"
+            <a href=""
+                class="flex items-center gap-2 text-blue-600 dark:text-blue-500 hover:opacity-80 transition-opacity"
                 title="Atualizar página">
-                <i data-lucide="minimize-2" class="w-8 h-8"></i>
-                <h1 class="text-2xl font-bold tracking-tight">Comprime<span class="text-gray-800">Ai</span></h1>
+                <i data-lucide="minimize-2" class="w-6 h-6 md:w-8 md:h-8"></i>
+                <h1 class="text-xl md:text-2xl font-bold tracking-tight">Comprime<span
+                        class="text-gray-800 dark:text-white">Ai</span></h1>
             </a>
-            <button onclick="openAboutModal()"
-                class="text-sm font-medium text-gray-500 hover:text-blue-600 transition-colors cursor-pointer">Sobre o
-                Projeto</button>
+            <div class="flex items-center gap-2 md:gap-4">
+                <button id="theme-toggle"
+                    class="p-2 text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors cursor-pointer"
+                    title="Alternar tema">
+                    <i id="theme-icon" data-lucide="moon" class="w-5 h-5"></i>
+                </button>
+                <button onclick="openAboutModal()"
+                    class="text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer whitespace-nowrap">Sobre
+                    o Projeto</button>
+            </div>
         </div>
     </header>
 
-    <main class="max-w-6xl mx-auto px-4 py-8">
+    <main class="max-w-6xl mx-auto px-4 py-6 md:py-8">
 
-        <div class="flex space-x-1 bg-gray-200/60 p-1 rounded-xl mb-8 overflow-x-auto hide-scrollbar max-w-2xl mx-auto">
+        <div
+            class="flex space-x-2 bg-gray-200/60 dark:bg-gray-800 p-1.5 rounded-xl mb-6 md:mb-8 overflow-x-auto hide-scrollbar max-w-2xl mx-auto snap-x transition-colors">
             <button
-                class="tab-transition flex-1 flex items-center justify-center gap-2 bg-white shadow-sm py-2.5 px-4 rounded-lg text-sm font-semibold text-blue-600">
+                class="tab-transition flex-shrink-0 min-w-[110px] md:flex-1 flex items-center justify-center gap-2 bg-white dark:bg-gray-700 shadow-sm py-2.5 px-4 rounded-lg text-sm font-semibold text-blue-600 dark:text-blue-400 snap-center">
                 <i data-lucide="image" class="w-4 h-4"></i> Fotos
             </button>
             <button onclick="showComingSoon('Vídeos')"
-                class="tab-transition flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg text-sm font-medium text-gray-500 hover:bg-white hover:text-gray-800 hover:shadow-sm">
+                class="tab-transition flex-shrink-0 min-w-[110px] md:flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-white dark:hover:bg-gray-700 hover:text-gray-800 dark:hover:text-white hover:shadow-sm snap-center">
                 <i data-lucide="video" class="w-4 h-4"></i> Vídeos
             </button>
             <button onclick="showComingSoon('Áudios')"
-                class="tab-transition flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg text-sm font-medium text-gray-500 hover:bg-white hover:text-gray-800 hover:shadow-sm">
+                class="tab-transition flex-shrink-0 min-w-[110px] md:flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-white dark:hover:bg-gray-700 hover:text-gray-800 dark:hover:text-white hover:shadow-sm snap-center">
                 <i data-lucide="music" class="w-4 h-4"></i> Áudios
             </button>
             <button onclick="showComingSoon('Textos')"
-                class="tab-transition flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg text-sm font-medium text-gray-500 hover:bg-white hover:text-gray-800 hover:shadow-sm">
+                class="tab-transition flex-shrink-0 min-w-[110px] md:flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-white dark:hover:bg-gray-700 hover:text-gray-800 dark:hover:text-white hover:shadow-sm snap-center">
                 <i data-lucide="file-text" class="w-4 h-4"></i> Textos
             </button>
         </div>
 
         <div id="coming-soon-alert"
-            class="hidden max-w-2xl mx-auto mb-6 bg-blue-50 text-blue-800 p-4 rounded-lg flex items-start justify-between gap-3">
+            class="hidden max-w-2xl mx-auto mb-6 bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-300 p-4 rounded-lg flex items-start justify-between gap-3 transition-colors border border-blue-100 dark:border-blue-800/30">
             <div class="flex items-start gap-3">
-                <i data-lucide="info" class="w-5 h-5 mt-0.5 text-blue-600 flex-shrink-0"></i>
+                <i data-lucide="info" class="w-5 h-5 mt-0.5 text-blue-600 dark:text-blue-400 flex-shrink-0"></i>
                 <div>
                     <h3 class="font-semibold" id="coming-soon-title">Recurso em desenvolvimento</h3>
-                    <p class="text-sm mt-1 opacity-90">A compressão de <span id="coming-soon-type"
-                            class="font-bold"></span> requer processamento no servidor e será adicionada em futuras
-                        atualizações. Por enquanto, aproveite o redutor de fotos gratuito!</p>
+                    <p class="text-sm mt-1 opacity-90">Ainda estamos a trabalhar na otimização de <span
+                            id="coming-soon-type" class="font-bold"></span>. Fique ligado nas próximas atualizações!</p>
                 </div>
             </div>
             <button onclick="closeComingSoon()"
-                class="text-blue-500 hover:text-blue-800 transition-colors p-1 flex-shrink-0" title="Fechar">
+                class="text-blue-500 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200 transition-colors p-1 flex-shrink-0"
+                title="Fechar">
                 <i data-lucide="x" class="w-5 h-5"></i>
             </button>
         </div>
 
         <div id="upload-area" class="max-w-2xl mx-auto">
             <div class="text-center mb-6">
-                <h2 class="text-3xl font-bold text-gray-900">Reduza o tamanho das suas fotos</h2>
-                <p class="text-gray-500 mt-2">Comprima imagens JPG, PNG ou WEBP indicando o tamanho exato desejado. Todo
-                    processamento ocorre localmente.</p>
+                <h2 class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">Reduza o tamanho das suas fotos
+                </h2>
+                <p class="text-sm md:text-base text-gray-500 dark:text-gray-400 mt-2 px-2">Comprima imagens JPG, PNG ou
+                    WEBP indicando o tamanho exato desejado. Todo processamento ocorre localmente.</p>
             </div>
 
             <label for="file-input" id="drop-zone"
-                class="flex flex-col items-center justify-center w-full h-72 border-2 border-dashed border-gray-300 rounded-2xl cursor-pointer bg-white hover:bg-gray-50 hover:border-blue-400 transition-all group">
-                <div class="flex flex-col items-center justify-center pt-5 pb-6">
-                    <div class="bg-blue-50 p-4 rounded-full mb-4 group-hover:scale-110 transition-transform">
-                        <i data-lucide="upload-cloud" class="w-10 h-10 text-blue-600"></i>
+                class="flex flex-col items-center justify-center w-full h-56 md:h-72 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-2xl cursor-pointer bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/50 hover:border-blue-400 dark:hover:border-blue-500 transition-all group">
+                <div class="flex flex-col items-center justify-center pt-5 pb-6 px-4 text-center">
+                    <div
+                        class="bg-blue-50 dark:bg-blue-900/30 p-3 md:p-4 rounded-full mb-3 md:mb-4 group-hover:scale-110 transition-transform">
+                        <i data-lucide="upload-cloud"
+                            class="w-8 h-8 md:w-10 md:h-10 text-blue-600 dark:text-blue-400"></i>
                     </div>
-                    <p class="mb-2 text-lg text-gray-700 font-medium"><span class="text-blue-600">Clique para
-                            enviar</span> ou arraste e solte</p>
-                    <p class="text-xs text-gray-500">Suporta JPG, PNG, WEBP (Max 20MB)</p>
+                    <p class="mb-2 text-base md:text-lg text-gray-700 dark:text-gray-200 font-medium"><span
+                            class="text-blue-600 dark:text-blue-400">Clique para enviar</span> ou arraste e solte</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Suporta JPG, PNG, WEBP (Max 20MB)</p>
                 </div>
                 <input id="file-input" type="file" class="hidden" accept="image/png, image/jpeg, image/webp" />
             </label>
@@ -106,93 +150,104 @@
 
         <div id="workspace" class="hidden max-w-5xl mx-auto">
 
-            <div class="flex items-center justify-between mb-6">
-                <h2 class="text-2xl font-bold text-gray-900">Ajuste de Tamanho</h2>
+            <div class="flex items-center justify-between mb-4 md:mb-6">
+                <h2 class="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">Ajuste de Tamanho</h2>
                 <button id="reset-btn"
-                    class="text-sm font-medium text-gray-500 hover:text-red-600 flex items-center gap-1 transition-colors">
-                    <i data-lucide="trash-2" class="w-4 h-4"></i> Descartar imagem
+                    class="text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 flex items-center gap-1 transition-colors">
+                    <i data-lucide="trash-2" class="w-4 h-4"></i> <span class="hidden sm:inline">Descartar
+                        imagem</span><span class="sm:hidden">Descartar</span>
                 </button>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
 
-                <div class="lg:col-span-4 space-y-6">
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                <div class="lg:col-span-4 space-y-6 order-2 lg:order-1">
+                    <div
+                        class="bg-white dark:bg-gray-800 p-5 md:p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 transition-colors">
 
                         <div class="flex justify-between items-end mb-4">
-                            <label for="size-slider" class="block text-sm font-medium text-gray-700">
+                            <label for="size-slider" class="block text-sm font-medium text-gray-700 dark:text-gray-200">
                                 Tamanho Desejado
                             </label>
                             <div
-                                class="flex items-center gap-1 bg-gray-50 border border-gray-200 rounded-lg px-2 py-1 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 transition-all">
+                                class="flex items-center gap-1 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg px-2 py-1 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 transition-all">
                                 <input type="number" step="any" id="size-input"
-                                    class="w-20 bg-transparent text-right outline-none text-blue-600 font-bold"
+                                    class="w-16 md:w-20 bg-transparent text-right outline-none text-blue-600 dark:text-blue-400 font-bold"
                                     min="0.01">
                                 <select id="size-unit"
-                                    class="text-xs text-gray-500 font-medium bg-transparent outline-none cursor-pointer appearance-none text-center pr-1">
+                                    class="text-xs text-gray-500 dark:text-gray-400 font-medium bg-transparent outline-none cursor-pointer appearance-none text-center pr-1">
                                     <option value="KB">KB</option>
                                     <option value="MB">MB</option>
                                 </select>
-                                <i data-lucide="chevron-down" class="w-3 h-3 text-gray-400 -ml-1"></i>
+                                <i data-lucide="chevron-down"
+                                    class="w-3 h-3 text-gray-400 dark:text-gray-500 -ml-1 pointer-events-none"></i>
                             </div>
                         </div>
 
                         <input id="size-slider" type="range" min="10" max="100" value="50"
-                            class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
+                            class="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-600 dark:accent-blue-500">
 
-                        <div class="flex justify-between text-xs text-gray-400 mt-2">
+                        <div class="flex justify-between text-xs text-gray-400 dark:text-gray-500 mt-2">
                             <span>10 KB</span>
                             <span id="slider-max-label">Max</span>
                         </div>
 
                         <div id="padding-info"
-                            class="hidden mt-4 p-3 bg-blue-50 rounded-lg border border-blue-100 flex gap-2 items-start transition-all">
-                            <i data-lucide="info" class="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0"></i>
-                            <p class="text-xs text-blue-700 leading-relaxed">
+                            class="hidden mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-800/30 flex gap-2 items-start transition-all">
+                            <i data-lucide="info"
+                                class="w-4 h-4 text-blue-500 dark:text-blue-400 mt-0.5 flex-shrink-0"></i>
+                            <p class="text-xs text-blue-700 dark:text-blue-300 leading-relaxed">
                                 O tamanho escolhido é maior que a compressão natural máxima. O arquivo foi ajustado para
                                 atingir <b>exatamente</b> o peso informado sem perder qualidade.
                             </p>
                         </div>
 
-                        <div class="mt-8 space-y-4">
-                            <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                                <span class="text-sm text-gray-500">Tamanho Original</span>
-                                <span id="original-size" class="font-semibold text-gray-700">--</span>
+                        <div class="mt-6 md:mt-8 space-y-3 md:space-y-4">
+                            <div
+                                class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg">
+                                <span class="text-sm text-gray-500 dark:text-gray-400">Tamanho Original</span>
+                                <span id="original-size"
+                                    class="font-semibold text-gray-700 dark:text-gray-200">--</span>
                             </div>
                             <div
-                                class="flex justify-between items-center p-3 bg-green-50 rounded-lg border border-green-100">
-                                <span class="text-sm text-green-700 font-medium">Novo Tamanho</span>
-                                <span id="compressed-size" class="font-bold text-green-700">--</span>
+                                class="flex justify-between items-center p-3 bg-green-50 dark:bg-green-900/10 rounded-lg border border-green-100 dark:border-green-800/30">
+                                <span class="text-sm text-green-700 dark:text-green-400 font-medium">Novo Tamanho</span>
+                                <span id="compressed-size"
+                                    class="font-bold text-green-700 dark:text-green-400">--</span>
                             </div>
                             <div class="flex justify-between items-center px-1">
-                                <span class="text-xs text-gray-400">Status:</span>
-                                <span id="reduction-percent" class="text-xs font-bold text-green-600">--</span>
+                                <span class="text-xs text-gray-400 dark:text-gray-500">Status:</span>
+                                <span id="reduction-percent"
+                                    class="text-xs font-bold text-green-600 dark:text-green-400 text-right">--</span>
                             </div>
                         </div>
 
                         <button id="download-btn"
-                            class="w-full mt-8 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors shadow-sm shadow-blue-200">
+                            class="w-full mt-6 md:mt-8 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white font-semibold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors shadow-sm shadow-blue-200 dark:shadow-none">
                             <i data-lucide="download" class="w-5 h-5"></i>
                             Baixar Imagem
                         </button>
                     </div>
                 </div>
 
-                <div class="lg:col-span-8">
+                <div class="lg:col-span-8 order-1 lg:order-2">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 h-full">
 
-                        <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col">
-                            <span class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Original</span>
+                        <div
+                            class="bg-white dark:bg-gray-800 p-3 md:p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col transition-colors">
+                            <span
+                                class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2 md:mb-3">Original</span>
                             <div
-                                class="flex-1 bg-gray-100 rounded-xl overflow-hidden flex items-center justify-center relative min-h-[300px]">
-                                <img id="original-preview" class="max-w-full max-h-full object-contain" src=""
+                                class="flex-1 bg-gray-100 dark:bg-gray-900 rounded-xl overflow-hidden flex items-center justify-center relative min-h-[200px] md:min-h-[300px]">
+                                <img id="original-preview" class="max-w-full max-h-full object-contain p-2" src=""
                                     alt="Imagem original">
                             </div>
                         </div>
 
-                        <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col">
+                        <div
+                            class="bg-white dark:bg-gray-800 p-3 md:p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col transition-colors">
                             <span
-                                class="text-xs font-bold text-blue-500 uppercase tracking-wider mb-3 flex justify-between items-center">
+                                class="text-xs font-bold text-blue-500 dark:text-blue-400 uppercase tracking-wider mb-2 md:mb-3 flex justify-between items-center">
                                 Resultado
                                 <span class="flex h-2 w-2 relative">
                                     <span
@@ -200,9 +255,9 @@
                                     <span class="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
                                 </span>
                             </span>
-                            <div class="flex-1 bg-gray-100 rounded-xl overflow-hidden flex items-center justify-center relative min-h-[300px]"
-                                style="background-image: radial-gradient(#e5e7eb 1px, transparent 1px); background-size: 20px 20px;">
-                                <img id="compressed-preview" class="max-w-full max-h-full object-contain" src=""
+                            <div
+                                class="flex-1 bg-gray-100 dark:bg-gray-900 rounded-xl overflow-hidden flex items-center justify-center relative min-h-[200px] md:min-h-[300px] checker-bg">
+                                <img id="compressed-preview" class="max-w-full max-h-full object-contain p-2" src=""
                                     alt="Imagem comprimida">
                             </div>
                         </div>
@@ -214,52 +269,72 @@
         </div>
     </main>
 
-    <footer class="mt-20 py-8 border-t border-gray-200 text-center text-sm text-gray-500">
-        <p>Criado com JavaScript e Tailwind CSS. Todo o processamento de imagens ocorre localmente.</p>
-        <p class="mt-2 font-semibold text-gray-600">&copy; 2026 FStudio</p>
+    <footer
+        class="mt-12 md:mt-20 py-8 border-t border-gray-200 dark:border-gray-800 text-center text-xs md:text-sm text-gray-500 dark:text-gray-400 px-4 transition-colors">
+        <p>Redução rápida e segura diretamente no seu dispositivo.</p>
+        <p class="mt-2 font-semibold text-gray-600 dark:text-gray-300">&copy; 2026 FStudio</p>
     </footer>
 
-    <!-- Modal Sobre o Projeto -->
     <div id="about-modal"
-        class="fixed inset-0 bg-gray-900/40 z-50 hidden flex items-center justify-center backdrop-blur-sm opacity-0 transition-opacity duration-300">
+        class="fixed inset-0 bg-gray-900/40 dark:bg-black/60 z-50 hidden flex items-center justify-center backdrop-blur-sm opacity-0 transition-opacity duration-300 p-4">
         <div id="about-modal-content"
-            class="bg-white w-full max-w-md p-6 rounded-2xl shadow-xl transform scale-95 transition-transform duration-300 mx-4">
+            class="bg-white dark:bg-gray-800 w-full max-w-md p-5 md:p-6 rounded-2xl shadow-xl transform scale-95 transition-all duration-300">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-bold text-gray-900">Sobre o ComprimeAi</h3>
-                <button onclick="closeAboutModal()" class="text-gray-400 hover:text-gray-600 transition-colors p-1">
+                <h3 class="text-lg md:text-xl font-bold text-gray-900 dark:text-white">Sobre o ComprimeAi</h3>
+                <button onclick="closeAboutModal()"
+                    class="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors p-1">
                     <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
-            <div class="space-y-4 text-sm text-gray-600 leading-relaxed">
-                <p>O <strong>ComprimeAi</strong> é uma ferramenta inteligente criada para reduzir o tamanho dos seus
-                    arquivos de forma rápida e precisa.</p>
-                <p>O grande diferencial deste projeto é a <strong>privacidade e segurança</strong>. Ao contrário de
-                    outras plataformas online, todo o processo de compressão da imagem acontece <span
-                        class="font-semibold text-blue-600">diretamente no seu navegador</span>. Suas fotos nunca são
-                    enviadas para servidores externos ou armazenadas na nuvem.</p>
-                <div class="bg-gray-50 p-3 rounded-lg border border-gray-100 mt-2">
-                    <p class="text-xs text-gray-500 font-medium mb-1">Tecnologias envolvidas:</p>
-                    <p class="text-xs text-gray-500">HTML5 Canvas, JavaScript puro e Tailwind CSS.</p>
-                </div>
+            <div class="space-y-4 text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+                <p>O <strong>ComprimeAi</strong> foi desenvolvido para facilitar a otimização de imagens no dia a dia,
+                    focando em velocidade e segurança.</p>
+                <p>Todo o processamento é feito localmente no seu dispositivo. As suas fotos nunca são enviadas para
+                    nenhum servidor, garantindo total privacidade e um funcionamento imediato, sem consumir os seus
+                    dados de internet.</p>
             </div>
             <div class="mt-6 flex justify-end">
                 <button onclick="closeAboutModal()"
-                    class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-5 rounded-xl transition-colors shadow-sm shadow-blue-200">
+                    class="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white font-medium py-2 px-5 rounded-xl transition-colors shadow-sm shadow-blue-200 dark:shadow-none w-full sm:w-auto">
                     Entendi
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- Toast de Notificação -->
     <div id="toast-notification"
-        class="fixed bottom-5 right-5 bg-red-600 text-white px-6 py-3 rounded-xl shadow-lg transform transition-all duration-300 translate-y-20 opacity-0 pointer-events-none z-50 flex items-center gap-3">
-        <i data-lucide="alert-circle" class="w-5 h-5"></i>
+        class="fixed bottom-5 right-5 left-5 md:left-auto bg-red-600 text-white px-4 md:px-6 py-3 rounded-xl shadow-lg transform transition-all duration-300 translate-y-24 opacity-0 pointer-events-none z-50 flex items-center gap-3 max-w-sm mx-auto md:mx-0">
+        <i data-lucide="alert-circle" class="w-5 h-5 flex-shrink-0"></i>
         <span id="toast-message" class="font-medium text-sm">Erro ao processar.</span>
     </div>
 
     <script>
         lucide.createIcons();
+
+        const htmlElement = document.documentElement;
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const themeIcon = document.getElementById('theme-icon');
+
+        function setTheme(isDark) {
+            if (isDark) {
+                htmlElement.classList.add('dark');
+                themeIcon.setAttribute('data-lucide', 'sun');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                htmlElement.classList.remove('dark');
+                themeIcon.setAttribute('data-lucide', 'moon');
+                localStorage.setItem('theme', 'light');
+            }
+            lucide.createIcons();
+        }
+
+        const savedTheme = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        setTheme(savedTheme === 'dark' || (!savedTheme && prefersDark));
+
+        themeToggleBtn.addEventListener('click', () => {
+            setTheme(!htmlElement.classList.contains('dark'));
+        });
 
         let originalFile = null;
         let originalImageObj = new Image();
@@ -429,6 +504,10 @@
                     uploadArea.classList.add('hidden');
                     workspace.classList.remove('hidden');
 
+                    if (window.innerWidth < 1024) {
+                        setTimeout(() => workspace.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+                    }
+
                     compressToTarget(defaultKb * 1024);
                 };
             };
@@ -496,13 +575,13 @@
                 const reduction = ((originalBytes - compressedBytes) / originalBytes) * 100;
                 if (reduction > 0.1) {
                     reductionPercentEl.textContent = `Reduzido em ${reduction.toFixed(1)}%`;
-                    reductionPercentEl.className = "text-xs font-bold text-green-600";
+                    reductionPercentEl.className = "text-xs font-bold text-green-600 dark:text-green-400 text-right";
                 } else if (reduction < -0.1) {
                     reductionPercentEl.textContent = `Aumentou ${Math.abs(reduction).toFixed(1)}%`;
-                    reductionPercentEl.className = "text-xs font-bold text-red-500";
+                    reductionPercentEl.className = "text-xs font-bold text-red-500 text-right";
                 } else {
-                    reductionPercentEl.textContent = `Mesmo tamanho original`;
-                    reductionPercentEl.className = "text-xs font-bold text-gray-500";
+                    reductionPercentEl.textContent = `Mesmo tamanho`;
+                    reductionPercentEl.className = "text-xs font-bold text-gray-500 text-right";
                 }
             }
         }
@@ -558,11 +637,11 @@
             const toastMsg = document.getElementById('toast-message');
 
             toastMsg.textContent = message;
-            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.remove('translate-y-24', 'opacity-0');
 
             clearTimeout(toastTimeout);
             toastTimeout = setTimeout(() => {
-                toast.classList.add('translate-y-20', 'opacity-0');
+                toast.classList.add('translate-y-24', 'opacity-0');
             }, 4000);
         }
 
