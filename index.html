@@ -84,8 +84,8 @@
         <div id="upload-area" class="max-w-2xl mx-auto">
             <div class="text-center mb-6">
                 <h2 class="text-3xl font-bold text-gray-900">Reduza o tamanho das suas fotos</h2>
-                <p class="text-gray-500 mt-2">Comprima imagens JPG, PNG ou WEBP sem perder muita qualidade. O
-                    processamento é feito no seu próprio navegador, garantindo 100% de privacidade.</p>
+                <p class="text-gray-500 mt-2">Comprima imagens JPG, PNG ou WEBP indicando o tamanho exato desejado. Todo
+                    processamento ocorre localmente.</p>
             </div>
 
             <label for="file-input" id="drop-zone"
@@ -105,7 +105,7 @@
         <div id="workspace" class="hidden max-w-5xl mx-auto">
 
             <div class="flex items-center justify-between mb-6">
-                <h2 class="text-2xl font-bold text-gray-900">Ajuste de Compressão</h2>
+                <h2 class="text-2xl font-bold text-gray-900">Ajuste de Tamanho</h2>
                 <button id="reset-btn"
                     class="text-sm font-medium text-gray-500 hover:text-red-600 flex items-center gap-1 transition-colors">
                     <i data-lucide="trash-2" class="w-4 h-4"></i> Descartar imagem
@@ -116,15 +116,40 @@
 
                 <div class="lg:col-span-4 space-y-6">
                     <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                        <label for="quality-slider" class="block text-sm font-medium text-gray-700 mb-4">
-                            Qualidade da Imagem: <span id="quality-value"
-                                class="text-blue-600 font-bold ml-1">80%</span>
-                        </label>
-                        <input id="quality-slider" type="range" min="1" max="100" value="80"
+
+                        <div class="flex justify-between items-end mb-4">
+                            <label for="size-slider" class="block text-sm font-medium text-gray-700">
+                                Tamanho Desejado
+                            </label>
+                            <div
+                                class="flex items-center gap-1 bg-gray-50 border border-gray-200 rounded-lg px-2 py-1 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 transition-all">
+                                <input type="number" step="any" id="size-input"
+                                    class="w-20 bg-transparent text-right outline-none text-blue-600 font-bold"
+                                    min="0.01">
+                                <select id="size-unit"
+                                    class="text-xs text-gray-500 font-medium bg-transparent outline-none cursor-pointer appearance-none text-center pr-1">
+                                    <option value="KB">KB</option>
+                                    <option value="MB">MB</option>
+                                </select>
+                                <i data-lucide="chevron-down" class="w-3 h-3 text-gray-400 -ml-1"></i>
+                            </div>
+                        </div>
+
+                        <input id="size-slider" type="range" min="10" max="100" value="50"
                             class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
+
                         <div class="flex justify-between text-xs text-gray-400 mt-2">
-                            <span>Menor tamanho</span>
-                            <span>Melhor qualidade</span>
+                            <span>10 KB</span>
+                            <span id="slider-max-label">Max</span>
+                        </div>
+
+                        <div id="padding-info"
+                            class="hidden mt-4 p-3 bg-blue-50 rounded-lg border border-blue-100 flex gap-2 items-start transition-all">
+                            <i data-lucide="info" class="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0"></i>
+                            <p class="text-xs text-blue-700 leading-relaxed">
+                                O tamanho escolhido é maior que a compressão natural máxima. O arquivo foi ajustado para
+                                atingir <b>exatamente</b> o peso informado sem perder qualidade.
+                            </p>
                         </div>
 
                         <div class="mt-8 space-y-4">
@@ -138,7 +163,7 @@
                                 <span id="compressed-size" class="font-bold text-green-700">--</span>
                             </div>
                             <div class="flex justify-between items-center px-1">
-                                <span class="text-xs text-gray-400">Redução estimada:</span>
+                                <span class="text-xs text-gray-400">Status:</span>
                                 <span id="reduction-percent" class="text-xs font-bold text-green-600">--</span>
                             </div>
                         </div>
@@ -166,7 +191,7 @@
                         <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col">
                             <span
                                 class="text-xs font-bold text-blue-500 uppercase tracking-wider mb-3 flex justify-between items-center">
-                                Comprimida
+                                Resultado
                                 <span class="flex h-2 w-2 relative">
                                     <span
                                         class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
@@ -202,7 +227,7 @@
 
         let originalFile = null;
         let originalImageObj = new Image();
-        let compressedDataUrl = null;
+        let compressedBlobUrl = null;
         let originalBytes = 0;
         let compressedBytes = 0;
 
@@ -214,8 +239,11 @@
         const originalPreview = document.getElementById('original-preview');
         const compressedPreview = document.getElementById('compressed-preview');
 
-        const qualitySlider = document.getElementById('quality-slider');
-        const qualityValue = document.getElementById('quality-value');
+        const sizeSlider = document.getElementById('size-slider');
+        const sizeInput = document.getElementById('size-input');
+        const sizeUnit = document.getElementById('size-unit');
+        const sliderMaxLabel = document.getElementById('slider-max-label');
+        const paddingInfo = document.getElementById('padding-info');
 
         const originalSizeEl = document.getElementById('original-size');
         const compressedSizeEl = document.getElementById('compressed-size');
@@ -224,14 +252,11 @@
         const downloadBtn = document.getElementById('download-btn');
         const resetBtn = document.getElementById('reset-btn');
 
-        let comingSoonTimeout;
         let toastTimeout;
+        let compressTimeout;
 
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
             document.body.addEventListener(eventName, preventDefaults, false);
-        });
-
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
             dropZone.addEventListener(eventName, preventDefaults, false);
         });
 
@@ -250,24 +275,71 @@
 
         dropZone.addEventListener('drop', (e) => {
             const dt = e.dataTransfer;
-            const files = dt.files;
-            if (files.length > 0) handleFile(files[0]);
+            if (dt.files.length > 0) handleFile(dt.files[0]);
         }, false);
 
         fileInput.addEventListener('change', function () {
             if (this.files.length > 0) handleFile(this.files[0]);
         });
 
-        qualitySlider.addEventListener('input', function () {
-            qualityValue.textContent = this.value + '%';
-            if (originalFile) {
-                clearTimeout(window.compressTimeout);
-                window.compressTimeout = setTimeout(compressImage, 100);
+        function debouncedCompress() {
+            clearTimeout(compressTimeout);
+            compressTimeout = setTimeout(() => {
+                let val = parseFloat(sizeInput.value) || 0;
+                let targetBytes = sizeUnit.value === 'MB' ? Math.floor(val * 1024 * 1024) : Math.floor(val * 1024);
+                if (targetBytes < 10240) targetBytes = 10240;
+                compressToTarget(targetBytes);
+            }, 200);
+        }
+
+        sizeUnit.addEventListener('change', function () {
+            let currentKb = parseInt(sizeSlider.value);
+            if (this.value === 'MB') {
+                sizeInput.value = (currentKb / 1024).toFixed(2);
+            } else {
+                sizeInput.value = currentKb;
+            }
+        });
+
+        sizeSlider.addEventListener('input', function () {
+            if (sizeUnit.value === 'MB') {
+                sizeInput.value = (this.value / 1024).toFixed(2);
+            } else {
+                sizeInput.value = this.value;
+            }
+            debouncedCompress();
+        });
+
+        sizeInput.addEventListener('input', function () {
+            let val = parseFloat(this.value);
+            if (isNaN(val)) return;
+
+            let valKb = sizeUnit.value === 'MB' ? val * 1024 : val;
+            let maxKb = Math.floor(originalBytes / 1024);
+
+            if (valKb > maxKb) {
+                valKb = maxKb;
+                this.value = sizeUnit.value === 'MB' ? (maxKb / 1024).toFixed(2) : maxKb;
+            }
+            sizeSlider.value = valKb;
+            debouncedCompress();
+        });
+
+        sizeInput.addEventListener('blur', function () {
+            let val = parseFloat(this.value);
+            let valKb = sizeUnit.value === 'MB' ? val * 1024 : val;
+            let minKb = 10;
+
+            if (isNaN(val) || valKb < minKb) {
+                valKb = minKb;
+                this.value = sizeUnit.value === 'MB' ? (minKb / 1024).toFixed(2) : minKb;
+                sizeSlider.value = valKb;
+                debouncedCompress();
             }
         });
 
         downloadBtn.addEventListener('click', () => {
-            if (!compressedDataUrl) return;
+            if (!compressedBlobUrl) return;
             const link = document.createElement('a');
 
             const nameParts = originalFile.name.split('.');
@@ -275,19 +347,21 @@
             const newName = nameParts.join('.') + '_comprimida.jpg';
 
             link.download = newName;
-            link.href = compressedDataUrl;
+            link.href = compressedBlobUrl;
             link.click();
         });
 
         resetBtn.addEventListener('click', () => {
             originalFile = null;
-            compressedDataUrl = null;
+            if (compressedBlobUrl) {
+                URL.revokeObjectURL(compressedBlobUrl);
+                compressedBlobUrl = null;
+            }
             fileInput.value = '';
-            qualitySlider.value = 80;
-            qualityValue.textContent = '80%';
 
             workspace.classList.add('hidden');
             uploadArea.classList.remove('hidden');
+            paddingInfo.classList.add('hidden');
         });
 
         function handleFile(file) {
@@ -300,6 +374,17 @@
             originalBytes = file.size;
             originalSizeEl.textContent = formatBytes(originalBytes);
 
+            let maxKb = Math.floor(originalBytes / 1024);
+            sizeSlider.max = maxKb;
+            sliderMaxLabel.textContent = formatBytes(originalBytes);
+
+            let defaultKb = Math.floor(maxKb * 0.8);
+            if (defaultKb > 2048) defaultKb = 2048;
+            if (maxKb < defaultKb) defaultKb = maxKb;
+
+            sizeSlider.value = defaultKb;
+            sizeInput.value = sizeUnit.value === 'MB' ? (defaultKb / 1024).toFixed(2) : defaultKb;
+
             const reader = new FileReader();
             reader.onload = (e) => {
                 originalImageObj.src = e.target.result;
@@ -308,13 +393,13 @@
                     uploadArea.classList.add('hidden');
                     workspace.classList.remove('hidden');
 
-                    compressImage();
+                    compressToTarget(defaultKb * 1024);
                 };
             };
             reader.readAsDataURL(file);
         }
 
-        function compressImage() {
+        function compressToTarget(targetBytes) {
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
 
@@ -325,27 +410,90 @@
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             ctx.drawImage(originalImageObj, 0, 0, canvas.width, canvas.height);
 
-            const quality = parseInt(qualitySlider.value) / 100;
+            let minQ = 0.0;
+            let maxQ = 1.0;
+            let bestData = canvas.toDataURL('image/jpeg', 1.0);
+            let bestDiff = Infinity;
+            let maxDataSize = calculateBase64Size(bestData);
 
-            compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
-            compressedPreview.src = compressedDataUrl;
+            if (targetBytes < maxDataSize) {
+                for (let i = 0; i < 8; i++) {
+                    let q = (minQ + maxQ) / 2;
+                    let data = canvas.toDataURL('image/jpeg', q);
+                    let size = calculateBase64Size(data);
+                    let diff = Math.abs(size - targetBytes);
 
-            const base64str = compressedDataUrl.split(',')[1];
-            const padding = (base64str.match(/=/g) || []).length;
-            compressedBytes = (base64str.length * 3 / 4) - padding;
+                    if (diff < bestDiff) {
+                        bestDiff = diff;
+                        bestData = data;
+                    }
 
+                    if (size > targetBytes) {
+                        maxQ = q;
+                    } else {
+                        minQ = q;
+                    }
+                }
+            }
+
+            let finalBlob;
+
+            if (targetBytes > maxDataSize && targetBytes <= originalBytes) {
+                finalBlob = base64ToPaddedBlob(bestData, targetBytes);
+                paddingInfo.classList.remove('hidden');
+            } else {
+                finalBlob = base64ToBlob(bestData);
+                paddingInfo.classList.add('hidden');
+            }
+
+            compressedBytes = finalBlob.size;
+
+            if (compressedBlobUrl) {
+                URL.revokeObjectURL(compressedBlobUrl);
+            }
+            compressedBlobUrl = URL.createObjectURL(finalBlob);
+
+            compressedPreview.src = compressedBlobUrl;
             compressedSizeEl.textContent = formatBytes(compressedBytes);
 
             if (originalBytes > 0) {
                 const reduction = ((originalBytes - compressedBytes) / originalBytes) * 100;
-                if (reduction > 0) {
-                    reductionPercentEl.textContent = `-${reduction.toFixed(1)}% menor`;
+                if (reduction > 0.1) {
+                    reductionPercentEl.textContent = `Reduzido em ${reduction.toFixed(1)}%`;
                     reductionPercentEl.className = "text-xs font-bold text-green-600";
-                } else {
+                } else if (reduction < -0.1) {
                     reductionPercentEl.textContent = `Aumentou ${Math.abs(reduction).toFixed(1)}%`;
                     reductionPercentEl.className = "text-xs font-bold text-red-500";
+                } else {
+                    reductionPercentEl.textContent = `Mesmo tamanho original`;
+                    reductionPercentEl.className = "text-xs font-bold text-gray-500";
                 }
             }
+        }
+
+        function calculateBase64Size(dataUrl) {
+            const base64str = dataUrl.split(',')[1];
+            const padding = (base64str.match(/=/g) || []).length;
+            return Math.floor((base64str.length * 3 / 4) - padding);
+        }
+
+        function base64ToPaddedBlob(dataUrl, targetBytes) {
+            const parts = dataUrl.split(',');
+            const mime = parts[0].match(/:(.*?);/)[1];
+            const bstr = atob(parts[1]);
+
+            let targetLen = Math.max(bstr.length, targetBytes);
+            const u8arr = new Uint8Array(targetLen);
+
+            for (let i = 0; i < bstr.length; i++) {
+                u8arr[i] = bstr.charCodeAt(i);
+            }
+
+            return new Blob([u8arr], { type: mime });
+        }
+
+        function base64ToBlob(dataUrl) {
+            return base64ToPaddedBlob(dataUrl, 0);
         }
 
         function formatBytes(bytes, decimals = 2) {
