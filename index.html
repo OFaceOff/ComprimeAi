@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ComprimeAí - Redutor de Arquivos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .drag-active {
+            border-color: #3b82f6 !important;
+            background-color: #eff6ff !important;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 min-h-screen font-sans text-gray-800">
+
+    <header class="bg-white shadow-sm sticky top-0 z-10">
+        <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-2 text-blue-600">
+                <i data-lucide="minimize-2" class="w-8 h-8"></i>
+                <h1 class="text-2xl font-bold tracking-tight">Comprime<span class="text-gray-800">Aí</span></h1>
+            </div>
+            <a href="#" class="text-sm font-medium text-gray-500 hover:text-blue-600 transition-colors">Sobre o
+                Projeto</a>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 py-8">
+
+        <div class="flex space-x-1 bg-gray-200/60 p-1 rounded-xl mb-8 overflow-x-auto hide-scrollbar max-w-2xl mx-auto">
+            <button
+                class="flex-1 flex items-center justify-center gap-2 bg-white shadow-sm py-2.5 px-4 rounded-lg text-sm font-semibold text-blue-600 transition-all">
+                <i data-lucide="image" class="w-4 h-4"></i> Fotos
+            </button>
+            <button onclick="showComingSoon('Vídeos')"
+                class="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg text-sm font-medium text-gray-500 hover:bg-gray-200 transition-all">
+                <i data-lucide="video" class="w-4 h-4"></i> Vídeos
+            </button>
+            <button onclick="showComingSoon('Áudios')"
+                class="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg text-sm font-medium text-gray-500 hover:bg-gray-200 transition-all">
+                <i data-lucide="music" class="w-4 h-4"></i> Áudios
+            </button>
+            <button onclick="showComingSoon('Textos')"
+                class="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg text-sm font-medium text-gray-500 hover:bg-gray-200 transition-all">
+                <i data-lucide="file-text" class="w-4 h-4"></i> Textos
+            </button>
+        </div>
+
+        <div id="coming-soon-alert"
+            class="hidden max-w-2xl mx-auto mb-6 bg-blue-50 text-blue-800 p-4 rounded-lg flex items-start gap-3">
+            <i data-lucide="info" class="w-5 h-5 mt-0.5 text-blue-600 flex-shrink-0"></i>
+            <div>
+                <h3 class="font-semibold" id="coming-soon-title">Recurso em desenvolvimento</h3>
+                <p class="text-sm mt-1 opacity-90">A compressão de <span id="coming-soon-type" class="font-bold"></span>
+                    requer processamento no servidor e será adicionada em futuras atualizações. Por enquanto, aproveite
+                    o redutor de fotos gratuito!</p>
+            </div>
+        </div>
+
+        <div id="upload-area" class="max-w-2xl mx-auto">
+            <div class="text-center mb-6">
+                <h2 class="text-3xl font-bold text-gray-900">Reduza o tamanho das suas fotos</h2>
+                <p class="text-gray-500 mt-2">Comprima imagens JPG, PNG ou WEBP sem perder muita qualidade. O
+                    processamento é feito no seu próprio navegador, garantindo 100% de privacidade.</p>
+            </div>
+
+            <label for="file-input" id="drop-zone"
+                class="flex flex-col items-center justify-center w-full h-72 border-2 border-dashed border-gray-300 rounded-2xl cursor-pointer bg-white hover:bg-gray-50 hover:border-blue-400 transition-all group">
+                <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                    <div class="bg-blue-50 p-4 rounded-full mb-4 group-hover:scale-110 transition-transform">
+                        <i data-lucide="upload-cloud" class="w-10 h-10 text-blue-600"></i>
+                    </div>
+                    <p class="mb-2 text-lg text-gray-700 font-medium"><span class="text-blue-600">Clique para
+                            enviar</span> ou arraste e solte</p>
+                    <p class="text-xs text-gray-500">Suporta JPG, PNG, WEBP (Max 20MB)</p>
+                </div>
+                <input id="file-input" type="file" class="hidden" accept="image/png, image/jpeg, image/webp" />
+            </label>
+        </div>
+
+        <div id="workspace" class="hidden max-w-5xl mx-auto">
+
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-bold text-gray-900">Ajuste de Compressão</h2>
+                <button id="reset-btn"
+                    class="text-sm font-medium text-gray-500 hover:text-red-600 flex items-center gap-1 transition-colors">
+                    <i data-lucide="trash-2" class="w-4 h-4"></i> Descartar imagem
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+
+                <div class="lg:col-span-4 space-y-6">
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                        <label for="quality-slider" class="block text-sm font-medium text-gray-700 mb-4">
+                            Qualidade da Imagem: <span id="quality-value"
+                                class="text-blue-600 font-bold ml-1">80%</span>
+                        </label>
+                        <input id="quality-slider" type="range" min="1" max="100" value="80"
+                            class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
+                        <div class="flex justify-between text-xs text-gray-400 mt-2">
+                            <span>Menor tamanho</span>
+                            <span>Melhor qualidade</span>
+                        </div>
+
+                        <div class="mt-8 space-y-4">
+                            <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                                <span class="text-sm text-gray-500">Tamanho Original</span>
+                                <span id="original-size" class="font-semibold text-gray-700">--</span>
+                            </div>
+                            <div
+                                class="flex justify-between items-center p-3 bg-green-50 rounded-lg border border-green-100">
+                                <span class="text-sm text-green-700 font-medium">Novo Tamanho</span>
+                                <span id="compressed-size" class="font-bold text-green-700">--</span>
+                            </div>
+                            <div class="flex justify-between items-center px-1">
+                                <span class="text-xs text-gray-400">Redução estimada:</span>
+                                <span id="reduction-percent" class="text-xs font-bold text-green-600">--</span>
+                            </div>
+                        </div>
+
+                        <button id="download-btn"
+                            class="w-full mt-8 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors shadow-sm shadow-blue-200">
+                            <i data-lucide="download" class="w-5 h-5"></i>
+                            Baixar Imagem
+                        </button>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 h-full">
+
+                        <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col">
+                            <span class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Original</span>
+                            <div
+                                class="flex-1 bg-gray-100 rounded-xl overflow-hidden flex items-center justify-center relative min-h-[300px]">
+                                <img id="original-preview" class="max-w-full max-h-full object-contain" src=""
+                                    alt="Imagem original">
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col">
+                            <span
+                                class="text-xs font-bold text-blue-500 uppercase tracking-wider mb-3 flex justify-between items-center">
+                                Comprimida
+                                <span class="flex h-2 w-2 relative">
+                                    <span
+                                        class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                                    <span class="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+                                </span>
+                            </span>
+                            <div class="flex-1 bg-gray-100 rounded-xl overflow-hidden flex items-center justify-center relative min-h-[300px]"
+                                style="background-image: radial-gradient(#e5e7eb 1px, transparent 1px); background-size: 20px 20px;">
+                                <img id="compressed-preview" class="max-w-full max-h-full object-contain" src=""
+                                    alt="Imagem comprimida">
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <footer class="mt-20 py-8 border-t border-gray-200 text-center text-sm text-gray-500">
+        <p>Criado com JavaScript e Tailwind CSS. Todo o processamento de imagens ocorre localmente.</p>
+    </footer>
+
+    <script>
+        lucide.createIcons();
+
+        let originalFile = null;
+        let originalImageObj = new Image();
+        let compressedDataUrl = null;
+        let originalBytes = 0;
+        let compressedBytes = 0;
+
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('file-input');
+        const uploadArea = document.getElementById('upload-area');
+        const workspace = document.getElementById('workspace');
+
+        const originalPreview = document.getElementById('original-preview');
+        const compressedPreview = document.getElementById('compressed-preview');
+
+        const qualitySlider = document.getElementById('quality-slider');
+        const qualityValue = document.getElementById('quality-value');
+
+        const originalSizeEl = document.getElementById('original-size');
+        const compressedSizeEl = document.getElementById('compressed-size');
+        const reductionPercentEl = document.getElementById('reduction-percent');
+
+        const downloadBtn = document.getElementById('download-btn');
+        const resetBtn = document.getElementById('reset-btn');
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => dropZone.classList.add('drag-active'), false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => dropZone.classList.remove('drag-active'), false);
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            if (files.length > 0) handleFile(files[0]);
+        }, false);
+
+        fileInput.addEventListener('change', function () {
+            if (this.files.length > 0) handleFile(this.files[0]);
+        });
+
+        qualitySlider.addEventListener('input', function () {
+            qualityValue.textContent = this.value + '%';
+            if (originalFile) {
+                clearTimeout(window.compressTimeout);
+                window.compressTimeout = setTimeout(compressImage, 100);
+            }
+        });
+
+        downloadBtn.addEventListener('click', () => {
+            if (!compressedDataUrl) return;
+            const link = document.createElement('a');
+
+            const nameParts = originalFile.name.split('.');
+            nameParts.pop();
+            const newName = nameParts.join('.') + '_comprimida.jpg';
+
+            link.download = newName;
+            link.href = compressedDataUrl;
+            link.click();
+        });
+
+        resetBtn.addEventListener('click', () => {
+            originalFile = null;
+            compressedDataUrl = null;
+            fileInput.value = '';
+            qualitySlider.value = 80;
+            qualityValue.textContent = '80%';
+
+            workspace.classList.add('hidden');
+            uploadArea.classList.remove('hidden');
+        });
+
+        function handleFile(file) {
+            if (!file.type.match('image.*')) {
+                alert('Por favor, selecione apenas arquivos de imagem (JPG, PNG, WEBP).');
+                return;
+            }
+
+            originalFile = file;
+            originalBytes = file.size;
+            originalSizeEl.textContent = formatBytes(originalBytes);
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                originalImageObj.src = e.target.result;
+                originalImageObj.onload = () => {
+                    originalPreview.src = originalImageObj.src;
+                    uploadArea.classList.add('hidden');
+                    workspace.classList.remove('hidden');
+
+                    compressImage();
+                };
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function compressImage() {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+
+            canvas.width = originalImageObj.width;
+            canvas.height = originalImageObj.height;
+
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(originalImageObj, 0, 0, canvas.width, canvas.height);
+
+            const quality = parseInt(qualitySlider.value) / 100;
+
+            compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+            compressedPreview.src = compressedDataUrl;
+
+            const base64str = compressedDataUrl.split(',')[1];
+            const padding = (base64str.match(/=/g) || []).length;
+            compressedBytes = (base64str.length * 3 / 4) - padding;
+
+            compressedSizeEl.textContent = formatBytes(compressedBytes);
+
+            if (originalBytes > 0) {
+                const reduction = ((originalBytes - compressedBytes) / originalBytes) * 100;
+                if (reduction > 0) {
+                    reductionPercentEl.textContent = `-${reduction.toFixed(1)}% menor`;
+                    reductionPercentEl.className = "text-xs font-bold text-green-600";
+                } else {
+                    reductionPercentEl.textContent = `Aumentou ${Math.abs(reduction).toFixed(1)}%`;
+                    reductionPercentEl.className = "text-xs font-bold text-red-500";
+                }
+            }
+        }
+
+        function formatBytes(bytes, decimals = 2) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const dm = decimals < 0 ? 0 : decimals;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+        }
+
+        function showComingSoon(type) {
+            const alert = document.getElementById('coming-soon-alert');
+            const typeSpan = document.getElementById('coming-soon-type');
+            typeSpan.textContent = type;
+            alert.classList.remove('hidden');
+
+            setTimeout(() => {
+                alert.classList.add('hidden');
+            }, 5000);
+        }
+    </script>
+</body>
+
+</html>
