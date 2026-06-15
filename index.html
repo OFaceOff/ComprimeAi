@@ -4,7 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ComprimeAí - Redutor de Arquivos</title>
+    <title>ComprimeAi - Redutor de Arquivos</title>
+    <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232563eb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='4 14 10 14 10 20'></polyline><polyline points='20 10 14 10 14 4'></polyline><line x1='14' y1='10' x2='21' y2='3'></line><line x1='3' y1='21' x2='10' y2='14'></line></svg>">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
@@ -21,6 +23,10 @@
             border-color: #3b82f6 !important;
             background-color: #eff6ff !important;
         }
+
+        .tab-transition {
+            transition: all 0.2s ease-in-out;
+        }
     </style>
 </head>
 
@@ -30,7 +36,7 @@
         <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
             <div class="flex items-center gap-2 text-blue-600">
                 <i data-lucide="minimize-2" class="w-8 h-8"></i>
-                <h1 class="text-2xl font-bold tracking-tight">Comprime<span class="text-gray-800">Aí</span></h1>
+                <h1 class="text-2xl font-bold tracking-tight">Comprime<span class="text-gray-800">Ai</span></h1>
             </div>
             <a href="#" class="text-sm font-medium text-gray-500 hover:text-blue-600 transition-colors">Sobre o
                 Projeto</a>
@@ -41,32 +47,38 @@
 
         <div class="flex space-x-1 bg-gray-200/60 p-1 rounded-xl mb-8 overflow-x-auto hide-scrollbar max-w-2xl mx-auto">
             <button
-                class="flex-1 flex items-center justify-center gap-2 bg-white shadow-sm py-2.5 px-4 rounded-lg text-sm font-semibold text-blue-600 transition-all">
+                class="tab-transition flex-1 flex items-center justify-center gap-2 bg-white shadow-sm py-2.5 px-4 rounded-lg text-sm font-semibold text-blue-600">
                 <i data-lucide="image" class="w-4 h-4"></i> Fotos
             </button>
             <button onclick="showComingSoon('Vídeos')"
-                class="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg text-sm font-medium text-gray-500 hover:bg-gray-200 transition-all">
+                class="tab-transition flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg text-sm font-medium text-gray-500 hover:bg-white hover:text-gray-800 hover:shadow-sm">
                 <i data-lucide="video" class="w-4 h-4"></i> Vídeos
             </button>
             <button onclick="showComingSoon('Áudios')"
-                class="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg text-sm font-medium text-gray-500 hover:bg-gray-200 transition-all">
+                class="tab-transition flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg text-sm font-medium text-gray-500 hover:bg-white hover:text-gray-800 hover:shadow-sm">
                 <i data-lucide="music" class="w-4 h-4"></i> Áudios
             </button>
             <button onclick="showComingSoon('Textos')"
-                class="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg text-sm font-medium text-gray-500 hover:bg-gray-200 transition-all">
+                class="tab-transition flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg text-sm font-medium text-gray-500 hover:bg-white hover:text-gray-800 hover:shadow-sm">
                 <i data-lucide="file-text" class="w-4 h-4"></i> Textos
             </button>
         </div>
 
         <div id="coming-soon-alert"
-            class="hidden max-w-2xl mx-auto mb-6 bg-blue-50 text-blue-800 p-4 rounded-lg flex items-start gap-3">
-            <i data-lucide="info" class="w-5 h-5 mt-0.5 text-blue-600 flex-shrink-0"></i>
-            <div>
-                <h3 class="font-semibold" id="coming-soon-title">Recurso em desenvolvimento</h3>
-                <p class="text-sm mt-1 opacity-90">A compressão de <span id="coming-soon-type" class="font-bold"></span>
-                    requer processamento no servidor e será adicionada em futuras atualizações. Por enquanto, aproveite
-                    o redutor de fotos gratuito!</p>
+            class="hidden max-w-2xl mx-auto mb-6 bg-blue-50 text-blue-800 p-4 rounded-lg flex items-start justify-between gap-3">
+            <div class="flex items-start gap-3">
+                <i data-lucide="info" class="w-5 h-5 mt-0.5 text-blue-600 flex-shrink-0"></i>
+                <div>
+                    <h3 class="font-semibold" id="coming-soon-title">Recurso em desenvolvimento</h3>
+                    <p class="text-sm mt-1 opacity-90">A compressão de <span id="coming-soon-type"
+                            class="font-bold"></span> requer processamento no servidor e será adicionada em futuras
+                        atualizações. Por enquanto, aproveite o redutor de fotos gratuito!</p>
+                </div>
             </div>
+            <button onclick="closeComingSoon()"
+                class="text-blue-500 hover:text-blue-800 transition-colors p-1 flex-shrink-0" title="Fechar">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
         </div>
 
         <div id="upload-area" class="max-w-2xl mx-auto">
@@ -179,6 +191,12 @@
         <p>Criado com JavaScript e Tailwind CSS. Todo o processamento de imagens ocorre localmente.</p>
     </footer>
 
+    <div id="toast-notification"
+        class="fixed bottom-5 right-5 bg-red-600 text-white px-6 py-3 rounded-xl shadow-lg transform transition-all duration-300 translate-y-20 opacity-0 pointer-events-none z-50 flex items-center gap-3">
+        <i data-lucide="alert-circle" class="w-5 h-5"></i>
+        <span id="toast-message" class="font-medium text-sm">Erro ao processar.</span>
+    </div>
+
     <script>
         lucide.createIcons();
 
@@ -205,6 +223,13 @@
 
         const downloadBtn = document.getElementById('download-btn');
         const resetBtn = document.getElementById('reset-btn');
+
+        let comingSoonTimeout;
+        let toastTimeout;
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            document.body.addEventListener(eventName, preventDefaults, false);
+        });
 
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
             dropZone.addEventListener(eventName, preventDefaults, false);
@@ -267,7 +292,7 @@
 
         function handleFile(file) {
             if (!file.type.match('image.*')) {
-                alert('Por favor, selecione apenas arquivos de imagem (JPG, PNG, WEBP).');
+                showToast('Por favor, selecione apenas arquivos de imagem (JPG, PNG ou WEBP).');
                 return;
             }
 
@@ -333,14 +358,28 @@
         }
 
         function showComingSoon(type) {
-            const alert = document.getElementById('coming-soon-alert');
+            const alertBox = document.getElementById('coming-soon-alert');
             const typeSpan = document.getElementById('coming-soon-type');
             typeSpan.textContent = type;
-            alert.classList.remove('hidden');
+            alertBox.classList.remove('hidden');
+        }
 
-            setTimeout(() => {
-                alert.classList.add('hidden');
-            }, 5000);
+        function closeComingSoon() {
+            const alertBox = document.getElementById('coming-soon-alert');
+            alertBox.classList.add('hidden');
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast-notification');
+            const toastMsg = document.getElementById('toast-message');
+
+            toastMsg.textContent = message;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 4000);
         }
     </script>
 </body>
